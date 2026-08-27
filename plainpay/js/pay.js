@@ -246,14 +246,8 @@
     }
   }
 
-  function tryManualCode(input) {
-    const checkout = getCheckout();
-    const expected = BigInt(checkout.totalWei);
-    const parsed = parseEthToWei(input);
-    if (parsed === null) return { ok: false, error: "Enter the exact ETH amount shown above." };
-    if (parsed === expected) return { ok: true };
-    if (parsed === BigInt(checkout.extraWei)) return { ok: true };
-    return { ok: false, error: "That code does not match the amount generated in this browser." };
+  function tryManualCode() {
+    return { ok: false, error: "The displayed amount is not an unlock code. Paste a confirmed transaction hash." };
   }
 
   function stopWatch() {
@@ -278,7 +272,7 @@
         const extra = lastRpcError ? " Last probe: " + lastRpcError : "";
         onTick("No matching confirmed transfer yet. Checking about every 12 seconds." + extra);
       } catch (err) {
-        onTick("Could not reach a public RPC (" + (err && err.message ? err.message : err) + "). Use the unlock code if your transfer already confirmed.");
+        onTick("Could not reach a public RPC (" + (err && err.message ? err.message : err) + "). Confirm the transfer on a block explorer, then paste the transaction hash.");
       }
     }
     tick();
