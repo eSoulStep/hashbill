@@ -188,11 +188,11 @@
     $("pay-amount").textContent = checkout.totalEth + " ETH";
     $("pay-address").textContent = Plainpay.RECEIVE;
     $("unlock-code-hint").textContent = Plainpay.isUnlocked()
-      ? ("Unlocked. Backup code for this browser: " + checkout.totalEth)
-      : ("Your backup unlock code is this exact amount: " + checkout.totalEth);
+      ? "This browser is unlocked. Keep your transaction hash if you need to restore later."
+      : "Unlock only after a confirmed transfer. The amount on this page is what to send, not a code.";
     PlainpayQR.draw($("unlock-qr"), Plainpay.eip681(checkout));
     if (Plainpay.isUnlocked()) {
-      $("pay-status").textContent = "This browser is already unlocked. Keep the amount as a backup code.";
+      $("pay-status").textContent = "This browser is already unlocked.";
       $("pay-status").classList.add("ok");
     } else {
       $("pay-status").classList.remove("ok");
@@ -205,7 +205,7 @@
     $("pay-status").textContent = "Payment matched. Unbranded requests are unlocked in this browser.";
     $("pay-status").classList.add("ok");
     toast("Unlocked in this browser");
-    $("unlock-code-hint").textContent = "Backup unlock code: " + Plainpay.getCheckout().totalEth;
+    $("unlock-code-hint").textContent = "Unlocked after a confirmed transfer. Keep the transaction hash.";
   }
 
   function restore() {
@@ -267,22 +267,18 @@
         Plainpay.markUnlocked({ txHash: hit.hash, source: "manual-check" });
         onUnlocked();
       } else {
-        $("pay-status").textContent = "No matching confirmed transfer yet. Send the exact amount, wait for confirmation, or use the unlock code.";
+        $("pay-status").textContent = "No matching confirmed transfer yet. Send the exact amount, wait for confirmation, or paste the transaction hash.";
       }
     } catch (err) {
       $("pay-status").textContent = "RPC/indexer request failed: " + (err && err.message ? err.message : err);
     }
   });
-  $("btn-manual-unlock").addEventListener("click", function () {
-    const result = Plainpay.tryManualCode($("unlock-code").value);
-    if (!result.ok) {
+  if ($("btn-manual-unlock")) {
+    $("btn-manual-unlock").addEventListener("click", function () {
       $("pay-status").classList.remove("ok");
-      $("pay-status").textContent = result.error;
-      return;
-    }
-    Plainpay.markUnlocked({ source: "unlock-code" });
-    onUnlocked();
-  });
+      $("pay-status").textContent = "The displayed amount is not an unlock code. Paste a confirmed transaction hash and use Verify hash.";
+    });
+  }
   $("btn-check-tx").addEventListener("click", async function () {
     $("pay-status").classList.remove("ok");
     $("pay-status").textContent = "Verifying hash on a public RPC…";
