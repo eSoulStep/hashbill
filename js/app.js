@@ -281,11 +281,11 @@
     $("pay-amount").textContent = checkout.totalEth + " ETH";
     $("pay-address").textContent = HashbillPay.RECEIVE;
     $("unlock-code-hint").textContent = HashbillPay.isUnlocked()
-      ? ("Unlocked. Backup code for this browser: " + checkout.totalEth)
-      : ("Your backup unlock code is this exact amount: " + checkout.totalEth);
+      ? "This browser is unlocked. Keep your transaction hash if you need to restore later."
+      : "Unlock only after a confirmed transfer. The amount on this page is what to send, not a code.";
     HashbillQR.draw($("qr"), HashbillPay.eip681(checkout));
     if (HashbillPay.isUnlocked()) {
-      $("pay-status").textContent = "This browser is already unlocked. You can still keep the amount as a backup code.";
+      $("pay-status").textContent = "This browser is already unlocked.";
     }
   }
 
@@ -305,7 +305,7 @@
     $("pay-status").textContent = "Payment matched. Unbranded PDFs are unlocked in this browser.";
     toast("Unlocked in this browser");
     const checkout = HashbillPay.getCheckout();
-    $("unlock-code-hint").textContent = "Backup unlock code: " + checkout.totalEth;
+    $("unlock-code-hint").textContent = "Unlocked after a confirmed transfer. Keep the transaction hash.";
   }
 
   $("btn-add-line").addEventListener("click", function () {
@@ -329,22 +329,18 @@
         HashbillPay.markUnlocked({ txHash: hit.hash, source: "manual-check" });
         onUnlocked();
       } else {
-        $("pay-status").textContent = "No matching confirmed transfer yet. Send the exact amount, wait for confirmation, or use the unlock code.";
+        $("pay-status").textContent = "No matching confirmed transfer yet. Send the exact amount, wait for confirmation, or paste the transaction hash.";
       }
     } catch (err) {
       $("pay-status").textContent = "RPC/indexer request failed: " + (err && err.message ? err.message : err);
     }
   });
 
-  $("btn-manual-unlock").addEventListener("click", function () {
-    const result = HashbillPay.tryManualCode($("unlock-code").value);
-    if (!result.ok) {
-      $("pay-status").textContent = result.error;
-      return;
-    }
-    HashbillPay.markUnlocked({ source: "unlock-code" });
-    onUnlocked();
-  });
+  if ($("btn-manual-unlock")) {
+    $("btn-manual-unlock").addEventListener("click", function () {
+      $("pay-status").textContent = "The displayed amount is not an unlock code. Paste a confirmed transaction hash and use Verify hash.";
+    });
+  }
 
   $("btn-check-tx").addEventListener("click", async function () {
     $("pay-status").textContent = "Verifying hash on a public RPC…";
