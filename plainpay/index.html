@@ -104,7 +104,7 @@
       <ol class="steps">
         <li>Send the exact amount below from any wallet you already use.</li>
         <li>This page watches public RPCs and Blockscout. It never asks for a signature or a key.</li>
-        <li>Keep the exact amount — it is also your backup unlock code.</li>
+        <li>If watching fails, paste the transaction hash below. The send amount is not an unlock code.</li>
       </ol>
 
       <div class="pay-grid">
@@ -136,15 +136,11 @@
 
       <div class="backup">
         <h3>Already paid?</h3>
-        <p class="help">If a public RPC is blocked here, confirm the transfer on a block explorer, then paste the exact amount you sent.</p>
-        <label>Unlock code (exact ETH amount)
-          <input id="unlock-code" spellcheck="false" placeholder="0.004000000000123456">
-        </label>
-        <label>Or a transaction hash
+        <p class="help">If a public RPC is blocked here, confirm the transfer on a block explorer, then paste the transaction hash. The send amount is not an unlock code.</p>
+        <label>Transaction hash
           <input id="unlock-tx" spellcheck="false" placeholder="0x…">
         </label>
         <div class="actions">
-          <button type="button" class="btn" id="btn-manual-unlock">Unlock with code</button>
           <button type="button" class="btn" id="btn-check-tx">Verify hash</button>
         </div>
         <p class="footnote" id="unlock-code-hint"></p>
