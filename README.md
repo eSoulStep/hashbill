@@ -20,7 +20,7 @@ Unlock is a one-time native ETH transfer for this browser. It is not the invoice
 
 Receive address: 0x6c2094e511a6d6F5a44Ad3815fDAC7125D007a3D
 
-Price: 0.004 ETH plus a unique extra 1 to 999999 wei generated in this browser. Send exactly the amount shown. After a matching confirmed incoming transfer, localStorage unlocks unlimited unbranded PDFs and shows that unique amount as a backup unlock code.
+Price: 0.004 ETH plus a unique extra 1 to 999999 wei generated in this browser. Send exactly the amount shown. After a matching confirmed incoming transfer, this browser unlocks unlimited unbranded PDFs. The displayed amount is what to send, not an unlock code. If the watcher cannot see the chain, paste the transaction hash.
 
 The page shows the address, exact amount, QR (EIP-681), and copy buttons. Pay from a wallet you already use. There is no wallet connection.
 
@@ -35,7 +35,7 @@ Optional: paste a transaction hash to verify it on those RPCs.
 
 ### CORS caveat
 
-Public RPCs and indexers set their own CORS headers. Some browsers, extensions, or file:// origins will block fetches. If that happens, confirm the exact amount on a block explorer, then paste it into the unlock-code box. The watcher is implemented either way; the manual box is the backup.
+Public RPCs and indexers set their own CORS headers. Some browsers, extensions, or file:// origins will block fetches. If that happens, confirm the transfer on a block explorer, then paste the transaction hash. Pasting the send amount does not unlock.
 
 Unlock is per browser origin. The unique amount is stored locally when generated.
 
