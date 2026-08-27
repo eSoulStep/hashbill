@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plainpay — Ethereum payment requests</title>
+  <meta name="description" content="Generate a clean Ethereum payment request: address, exact ETH amount, optional note, and an EIP-681 QR. No wallet connection.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23173a6e'/%3E%3Cpath d='M8 22V10h4.2c2.8 0 4.5 1.5 4.5 3.8 0 1.5-.8 2.7-2.1 3.3L19 22h-3.2l-3.8-4.6H11V22H8zm3-7.2h1.3c1.3 0 2.1-.7 2.1-1.7s-.8-1.7-2.1-1.7H11v3.4z' fill='%23f4f7fb'/%3E%3C/svg%3E">
+</head>
+<body>
+  <a class="skip" href="#compose">Skip to compose</a>
+
+  <header class="top">
+    <a class="mark" href="./index.html">
+      <span class="logo" aria-hidden="true">P</span>
+      <span>
+        <strong>Plainpay</strong>
+        <small>ETH payment requests</small>
+      </span>
+    </a>
+    <div class="top-right">
+      <span id="tier-pill" class="chip"><span class="chip-dot"></span><span id="tier-label">Free · 1 watermarked request</span></span>
+      <button type="button" class="btn" id="btn-unlock-open">Unlock unbranded</button>
+    </div>
+  </header>
+
+  <p class="lede">
+    Build a request a client can pay: your address, an exact ETH amount, and an optional note.
+    This page never connects a wallet and never holds funds.
+  </p>
+
+  <main class="stage">
+    <section class="compose" id="compose">
+      <h1>Compose</h1>
+      <p class="help">Fields stay in this browser. The card on the right is what you send.</p>
+
+      <label>
+        Payee address
+        <input id="payee" spellcheck="false" autocomplete="off" placeholder="0x… (Ethereum mainnet)">
+      </label>
+      <p class="field-note" id="payee-hint">Where the client should send ETH. This is not Plainpay’s unlock address.</p>
+
+      <label>
+        Amount (ETH)
+        <input id="amount" inputmode="decimal" placeholder="0.25">
+      </label>
+
+      <label>
+        Your name on the card (optional)
+        <input id="from-name" autocomplete="name" placeholder="Ada Chen">
+      </label>
+
+      <label>
+        Note (optional)
+        <textarea id="note" rows="3" placeholder="Milestone 2 — marketing site"></textarea>
+      </label>
+
+      <label>
+        Reference (optional)
+        <input id="ref" spellcheck="false" placeholder="PP-1042">
+      </label>
+
+      <div class="actions">
+        <button type="button" class="btn btn-solid" id="btn-copy-request">Copy request</button>
+        <button type="button" class="btn" id="btn-copy-uri">Copy EIP-681 URI</button>
+        <button type="button" class="btn" id="btn-new">Reset</button>
+      </div>
+      <p class="footnote" id="quota-note">Free use: one watermarked copy in this browser. Unlock for unlimited unbranded requests.</p>
+    </section>
+
+    <section class="preview-col" aria-live="polite">
+      <div class="ticket" id="ticket">
+        <div id="wm" class="wm" aria-hidden="true">PREVIEW</div>
+        <div class="ticket-rail">Payment request</div>
+        <div id="card-body"></div>
+      </div>
+      <div class="share-row">
+        <button type="button" class="btn" data-copy="card-address">Copy address</button>
+        <button type="button" class="btn" data-copy="card-amount">Copy amount</button>
+        <button type="button" class="btn" id="btn-copy-text">Copy as text</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="legal">
+    Plainpay is a static page that formats a payment request. It is not a custodian, exchange, wallet, or payment processor.
+    It does not move funds and is not tax, accounting, or legal advice. Unlock payments are a one-time ETH transfer for this browser, not the request you send a client.
+  </footer>
+
+  <div class="sheet" id="unlock-sheet" hidden>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="unlock-title">
+      <div class="sheet-head">
+        <div>
+          <h2 id="unlock-title">Unlock Plainpay in this browser</h2>
+          <p class="help">One-time native ETH on Ethereum mainnet. No wallet connect.</p>
+        </div>
+        <button type="button" class="icon" id="btn-unlock-close" aria-label="Close">×</button>
+      </div>
+
+      <ol class="steps">
+        <li>Send the exact amount below from any wallet you already use.</li>
+        <li>This page watches public RPCs and Blockscout. It never asks for a signature or a key.</li>
+        <li>Keep the exact amount — it is also your backup unlock code.</li>
+      </ol>
+
+      <div class="pay-grid">
+        <div class="box">
+          <div class="k">Send exactly</div>
+          <div class="v" id="pay-amount">—</div>
+          <button type="button" class="btn" data-copy="pay-amount">Copy amount</button>
+        </div>
+        <div class="box">
+          <div class="k">To this address</div>
+          <div class="v mono wrap" id="pay-address">0x6c2094e511a6d6F5a44Ad3815fDAC7125D007a3D</div>
+          <button type="button" class="btn" data-copy="pay-address">Copy address</button>
+        </div>
+      </div>
+
+      <div class="qr-block">
+        <div id="unlock-qr" class="qr" role="img" aria-label="QR code for the Plainpay unlock payment"></div>
+        <p>
+          Scan with your own wallet. A tiny extra (1–999,999 wei) is added to 0.004 ETH so this browser can match your transfer.
+          After confirmation, unlimited unbranded requests unlock here. The payment is for Plainpay, not for the client request you are writing.
+        </p>
+      </div>
+
+      <p class="status" id="pay-status">Ready to watch public endpoints.</p>
+      <div class="actions">
+        <button type="button" class="btn btn-solid" id="btn-watch">Watch for my payment</button>
+        <button type="button" class="btn" id="btn-check-now">Check now</button>
+      </div>
+
+      <div class="backup">
+        <h3>Already paid?</h3>
+        <p class="help">If a public RPC is blocked here, confirm the transfer on a block explorer, then paste the exact amount you sent.</p>
+        <label>Unlock code (exact ETH amount)
+          <input id="unlock-code" spellcheck="false" placeholder="0.004000000000123456">
+        </label>
+        <label>Or a transaction hash
+          <input id="unlock-tx" spellcheck="false" placeholder="0x…">
+        </label>
+        <div class="actions">
+          <button type="button" class="btn" id="btn-manual-unlock">Unlock with code</button>
+          <button type="button" class="btn" id="btn-check-tx">Verify hash</button>
+        </div>
+        <p class="footnote" id="unlock-code-hint"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="js/qr.js"></script>
+  <script src="js/pay.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
