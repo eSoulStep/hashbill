@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hashbill — Crypto invoices, plainly</title>
+  <meta name="description" content="Hashbill is a local invoice generator for people who get paid in crypto. Draft here, download a PDF. You never connect a wallet to this page.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232a463b'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' fill='%23f7f4ee' font-family='Georgia'%3EH%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <a class="skip" href="#form">Skip to form</a>
+  <header class="app-header">
+    <a class="brand" href="./index.html">
+      <span class="wordmark">Hashbill</span>
+      <span class="tag">Invoices for people paid in crypto</span>
+    </a>
+    <div class="header-actions">
+      <span id="tier-pill" class="pill"><span class="pill-dot"></span><span id="tier-label">Preview · 1 watermarked PDF</span></span>
+      <button type="button" class="btn btn-ghost" id="btn-unlock-open">Unlock unbranded PDFs</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel" id="form">
+      <div class="section">
+        <h2>From</h2>
+        <p class="hint">Who is issuing this invoice. Paid copies remember these details in this browser only.</p>
+        <div class="grid-2">
+          <label>Name <input id="from-name" autocomplete="organization" placeholder="Northwind Studio"></label>
+          <label>Email (optional) <input id="from-email" type="email" autocomplete="email" placeholder="hello@studio.example"></label>
+        </div>
+        <label style="margin-top:12px">Wallet or ENS <input id="from-wallet" spellcheck="false" placeholder="alice.eth or 0x…"></label>
+      </div>
+
+      <div class="section">
+        <h2>To</h2>
+        <div class="grid-2">
+          <label>Name <input id="to-name" placeholder="Client Co."></label>
+          <label>Email (optional) <input id="to-email" type="email" placeholder="ap@client.example"></label>
+        </div>
+        <label style="margin-top:12px">Wallet or ENS <input id="to-wallet" spellcheck="false" placeholder="client.eth or 0x…"></label>
+      </div>
+
+      <div class="section">
+        <h2>Invoice details</h2>
+        <div class="grid-3">
+          <label>Invoice number <input id="inv-number" spellcheck="false"></label>
+          <label>Issue date <input id="issue-date" type="date"></label>
+          <label>Due date <input id="due-date" type="date"></label>
+        </div>
+        <div class="grid-2" style="margin-top:12px">
+          <label>Token
+            <select id="token">
+              <option value="ETH">ETH</option>
+              <option value="USDC">USDC</option>
+              <option value="USDT">USDT</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </label>
+          <label id="token-other-wrap" class="hidden">Other token <input id="token-other" placeholder="DAI, SOL…"></label>
+          <label>Chain
+            <select id="chain">
+              <option>Ethereum</option>
+              <option>Base</option>
+              <option>Arbitrum</option>
+              <option>Optimism</option>
+              <option>Polygon</option>
+              <option>Other</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Line items</h2>
+        <div id="line-items" class="line-items"></div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" id="btn-add-line">Add line</button>
+        </div>
+        <div class="grid-2" style="margin-top:14px">
+          <label>Fee or tax label (optional) <input id="fee-label" placeholder="Platform fee, VAT…"></label>
+          <label>Fee or tax amount <input id="fee-amount" inputmode="decimal" placeholder="0"></label>
+        </div>
+        <div class="grid-2" style="margin-top:12px">
+          <label>Fiat equivalent amount (optional) <input id="fiat-amount" inputmode="decimal" placeholder="1,240.00"></label>
+          <label>Fiat currency <input id="fiat-ccy" maxlength="8" placeholder="USD"></label>
+        </div>
+        <div class="totals-box" id="totals-live"></div>
+      </div>
+
+      <div class="section">
+        <h2>Settlement</h2>
+        <p class="hint">These wallets belong on the invoice you send your client. Hashbill never asks you to connect a wallet or paste a private key.</p>
+        <label>Payee wallet (where the client should pay) <input id="payee-wallet" spellcheck="false" placeholder="0x… or ENS"></label>
+        <label style="margin-top:12px">Payer wallet (optional) <input id="payer-wallet" spellcheck="false" placeholder="Client paying address"></label>
+        <label style="margin-top:12px">Transaction hash (optional) <input id="tx-hash" spellcheck="false" placeholder="0x… after they pay you"></label>
+        <label style="margin-top:12px">Notes <textarea id="notes" placeholder="Payment terms, late fees, project references…"></textarea></label>
+      </div>
+    </section>
+
+    <aside class="preview-col">
+      <div class="preview-wrap">
+        <article class="sheet" id="preview" aria-live="polite">
+          <div id="preview-stamp" class="stamp">PREVIEW</div>
+          <div id="preview-body"></div>
+        </article>
+        <div class="preview-actions">
+          <button type="button" class="btn btn-primary" id="btn-pdf">Download PDF</button>
+          <button type="button" class="btn btn-ghost" id="btn-print">Print / Save as PDF</button>
+        </div>
+        <p class="footnote" id="pdf-note">Free use includes a live preview and one watermarked PDF in this browser. Unlock for unlimited unbranded copies.</p>
+      </div>
+    </aside>
+  </main>
+
+  <dialog class="pay-dialog" id="pay-dialog" aria-labelledby="pay-title">
+    <div class="pay-head">
+      <div>
+        <h2 id="pay-title">Unlock unbranded PDFs</h2>
+        <p class="muted" style="margin:6px 0 0">A one-time Ethereum mainnet payment in this browser.</p>
+      </div>
+      <button type="button" class="icon-btn" id="btn-pay-close" aria-label="Close">×</button>
+    </div>
+    <div class="pay-body">
+      <p class="pay-copy">
+        Hashbill runs on this page. To drop the watermark and download unlimited PDFs here, send
+        <strong>native ETH on Ethereum mainnet</strong> from any wallet you already use.
+        This page never connects to your wallet, never asks for a signature, and never handles keys.
+        The payment is for Hashbill, not for the invoice you are writing.
+      </p>
+
+      <div class="callout amount">
+        <div class="label">Send exactly this amount</div>
+        <div class="value" id="pay-amount">—</div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" data-copy="pay-amount">Copy amount</button>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="label">To this Ethereum address</div>
+        <div class="value" id="pay-address">0x6c2094e511a6d6F5a44Ad3815fDAC7125D007a3D</div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" data-copy="pay-address">Copy address</button>
+        </div>
+      </div>
+
+      <div class="qr-row">
+        <div id="qr" role="img" aria-label="QR code for the Ethereum payment"></div>
+        <div>
+          <p class="pay-copy" style="margin:0">
+            Scan with your own wallet, then send the exact amount. A tiny extra (1–999,999 wei)
+            is added to 0.004 ETH so we can match your transfer. After it confirms, this browser
+            unlocks automatically. Keep the exact amount — it is also your backup unlock code.
+          </p>
+        </div>
+      </div>
+
+      <p class="status-line" id="pay-status">Waiting to watch the chain…</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="btn-watch">Watch for my payment</button>
+        <button type="button" class="btn btn-ghost" id="btn-check-now">Check now</button>
+      </div>
+
+      <div class="unlock-box">
+        <h3 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">Already paid?</h3>
+        <p class="hint">If a public RPC is blocked in this browser, confirm the transfer on a block explorer, then paste the exact amount you sent (your unlock code).</p>
+        <label>Unlock code (exact ETH amount)
+          <input id="unlock-code" spellcheck="false" placeholder="0.004000000000123456">
+        </label>
+        <label style="margin-top:10px">Or paste a transaction hash
+          <input id="unlock-tx" spellcheck="false" placeholder="0x…">
+        </label>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" id="btn-manual-unlock">Unlock with code</button>
+          <button type="button" class="btn btn-ghost" id="btn-check-tx">Verify hash</button>
+        </div>
+        <p class="footnote" id="unlock-code-hint"></p>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="js/qr.js"></script>
+  <script src="js/pdf.js"></script>
+  <script src="js/payment.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
