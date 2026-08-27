@@ -162,7 +162,7 @@
           <p class="pay-copy" style="margin:0">
             Scan with your own wallet, then send the exact amount. A tiny extra (1–999,999 wei)
             is added to 0.004 ETH so we can match your transfer. After it confirms, this browser
-            unlocks automatically. Keep the exact amount — it is also your backup unlock code.
+            unlocks automatically. If watching fails, paste the transaction hash below.
           </p>
         </div>
       </div>
@@ -175,15 +175,11 @@
 
       <div class="unlock-box">
         <h3 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">Already paid?</h3>
-        <p class="hint">If a public RPC is blocked in this browser, confirm the transfer on a block explorer, then paste the exact amount you sent (your unlock code).</p>
-        <label>Unlock code (exact ETH amount)
-          <input id="unlock-code" spellcheck="false" placeholder="0.004000000000123456">
-        </label>
-        <label style="margin-top:10px">Or paste a transaction hash
+        <p class="hint">If a public RPC is blocked in this browser, confirm the transfer on a block explorer, then paste the transaction hash. The send amount is not an unlock code.</p>
+        <label>Transaction hash
           <input id="unlock-tx" spellcheck="false" placeholder="0x…">
         </label>
         <div class="btn-row">
-          <button type="button" class="btn btn-ghost" id="btn-manual-unlock">Unlock with code</button>
           <button type="button" class="btn btn-ghost" id="btn-check-tx">Verify hash</button>
         </div>
         <p class="footnote" id="unlock-code-hint"></p>
